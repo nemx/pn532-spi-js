@@ -1,1 +1,1 @@
-module.exports = require("./lib/pn532-spi.min")
+module.exports = require("./src/pn532-spi.min")

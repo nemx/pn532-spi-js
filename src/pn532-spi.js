@@ -1,4 +1,3 @@
-import sleep from 'sleep'
 import SoftSPI from 'rpi-softspi'
 
 const PN532_FRAME_LENGTH = 8
@@ -139,9 +138,17 @@ class PN532 {
     })
   }
 
+  _msleep(n) {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
+  }
+
+  sleep(n) {
+    this.msleep(n*1000);
+  }
+
   _spiOpen() {
     this.spi.open()
-    sleep.msleep(2)
+    this.msleep(2)
   }
 
   _spiClose() {
@@ -268,7 +275,7 @@ class PN532 {
       if (new Date() - start >= timeoutSeconds * 1000) return false
 
       // Wait a little while and try reading the status again
-      sleep.msleep(10)
+      this.msleep(10)
       this._spiOpen()
       response = this.spi.transfer([PN532_SPI_STATREAD, 0x00])
       this._spiClose()
@@ -316,7 +323,7 @@ class PN532 {
   begin() {
     // Assert CS pin low for a second for PN532 to be ready
     this._spiOpen()
-    sleep.sleep(1)
+    this.sleep(1)
 
     // Call GetFirmwareVersion to sync up with the PN532.  This might not be
     // required but is done in the Arduino library and kept for consistency
